@@ -1,17 +1,14 @@
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { HttpHandlerFn, HttpRequest } from '@angular/common/http';
+import { inject } from '@angular/core';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { debounceTime, finalize, Observable } from 'rxjs';
+import { debounceTime, finalize } from 'rxjs';
 
-@Injectable()
-export class ApiInterceptor implements HttpInterceptor {
-	constructor(private _ngxUiLoaderService: NgxUiLoaderService) {}
+export const ApiInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
+	const ngxUiLoaderService = inject(NgxUiLoaderService);
+	ngxUiLoaderService.start();
 
-	intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-		this._ngxUiLoaderService.start();
-		return next.handle(request).pipe(
-			debounceTime(20),
-			finalize(() => this._ngxUiLoaderService.stop())
-		);
-	}
-}
+	return next(req).pipe(
+		debounceTime(20),
+		finalize(() => ngxUiLoaderService.stop())
+	);
+};
