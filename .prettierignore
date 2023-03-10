@@ -1,0 +1,7 @@
+node_modules/*
+package-lock.json
+yarn.lock
+src/*.ts
+src/index.html
+src/assets/modal/popout.html
+setup-jest.ts
